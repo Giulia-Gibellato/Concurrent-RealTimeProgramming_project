@@ -18,7 +18,7 @@
 #define MULTIPLIER_FORMULATION 1
 
 // threshold for the first termination condition
-#define MAX_ITEMS 1000
+#define MAX_ITEMS 200
 
 // size of the shared buffer used by producer and consumer
 #define PROD_CONS_BUFF_SIZE 100
@@ -298,6 +298,10 @@ static void* rate_controller(void* arg) {
 
         int prod_cons_buff_fill_level = prod_cons_buff_elem_counter;
 
+        pthread_mutex_unlock(&prod_cons_mutex);
+
+        pthread_mutex_lock(&prod_rate_mutex);
+
         float old_prod_time_ms = prod_time_ms;
         float new_prod_time_ms = prod_time_ms;
 
@@ -337,7 +341,7 @@ static void* rate_controller(void* arg) {
         }
 
         // free resource
-        pthread_mutex_unlock(&prod_cons_mutex);
+        pthread_mutex_unlock(&prod_rate_mutex);
 
         // logging
         log_file_write(log_file, prod_cons_buff_fill_level, old_prod_time_ms, new_prod_time_ms);
